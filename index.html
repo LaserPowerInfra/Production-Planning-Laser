@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Production Planning Laser</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;height:100%;font-family:Segoe UI,Arial,sans-serif}
+
+#bgVideo{position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:-1}
+
+header {
+  background: rgba(13,110,253,0.98);
+  color: #fff;
+  padding: 15px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.card {
+  max-width: 850px;
+  margin: 30px auto;
+  background: rgba(255,255,255,0.98);
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 20px;
+  row-gap: 15px;
+  align-items: end;
+}
+
+.field { width: 100%; }
+.full-width { grid-column: 1 / -1; }
+
+label {display:block;font-size:13px;font-weight:600;margin-bottom:5px;color:#333}
+.req::after {content:" *";color:red}
+input,select {width:100%;padding:10px;font-size:14px;border:1px solid #ccc;border-radius:6px;outline:none}
+input:focus,select:focus {border-color:#0d6efd;box-shadow:0 0 0 3px rgba(13,110,253,.15)}
+input[readonly] {background:#f1f3f6;font-weight:bold;color:#555;cursor:not-allowed}
+
+/* Placeholder Color Logic */
+select:required:invalid { color: #999; }
+option { color: #333; }
+
+.combo{position:relative;}
+.combo input { padding-right: 30px; cursor: pointer; }
+.combo-arrow {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  color: #666; cursor: pointer; font-size: 12px; pointer-events: none;
+}
+.combo-list{
+  position:absolute;top:100%;left:0;right:0;
+  background:#fff;border:1px solid #ccc;border-top:none;
+  border-radius:0 0 6px 6px;max-height:220px;
+  overflow-y:auto;display:none;z-index:100;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.combo-list div{padding:10px;cursor:pointer;border-bottom:1px solid #eee;font-size:14px}
+.combo-list div:hover{background:#e9ecef;color:#0d6efd}
+
+button {
+  grid-column: 1 / -1;
+  width: 100%;
+  padding: 12px;
+  background: #0d6efd;
+  color: #fff;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .2s;
+  margin-top: 10px;
+}
+button:hover {background:#0b5ed7}
+
+@media (max-width: 600px) {
+  .card { grid-template-columns: 1fr; padding: 15px; }
+}
+</style>
+</head>
+
+<body>
+
+<video id="bgVideo" autoplay muted loop playsinline>
+  <source src="https://laserpowerinfra.com/wp-content/uploads/2025/09/lpi-video.mp4" type="video/mp4">
+</video>
+<div class="overlay"></div>
+
+<header>Production Planning Laser</header>
+
+<form class="card"
+  method="POST"
+  action="https://script.google.com/macros/s/AKfycbz49qJOLi2nUZv3scSBT-HocBnGHZ5xrSR5JLrAGgfE4MBIuX8I58N7zqiZMuyZemlyvQ/exec"
+  target="hidden_iframe"
+  onsubmit="return beforeSubmit();">
+
+<div class="field full-width">
+<label class="req">MACHINE NAME</label>
+<div class="combo" id="comboWrapper">
+  <input id="machineInput" name="machine" autocomplete="off" placeholder="Select or type to search..." required>
+  <span class="combo-arrow">▼</span>
+  <div id="machineList" class="combo-list"></div>
+</div>
+</div>
+
+<div class="field">
+<label class="req">Cost Code</label>
+<input id="costCode" name="costCode" readonly placeholder="Auto-filled">
+</div>
+
+<div class="field">
+<label class="req">ITEM NAME</label>
+<input name="itemName" required>
+</div>
+
+<div class="field">
+<label class="req">Plan</label>
+<input type="number" id="plan" name="plan" required>
+</div>
+
+<div class="field">
+<label class="req">Mfg.</label>
+<input type="number" id="mfg" name="mfg" required>
+</div>
+
+<div class="field">
+<label class="req">UM</label>
+<select name="um" required>
+  <option value="" disabled selected hidden>Select UM</option>
+  <option>KG</option>
+  <option>KM</option>
+  <option>MT</option>
+  <option>NA</option>
+</select>
+</div>
+
+<div class="field">
+<label class="req">KM / BALANCE</label>
+<input id="kmBalance" name="kmBalance" readonly>
+</div>
+
+<div class="field">
+<label class="req">MC NO</label>
+<input name="mcNo" required>
+</div>
+
+<div class="field">
+<label class="req">TARGET / DAY</label>
+<input type="number" name="targetDay" required>
+</div>
+
+<div class="field">
+<label class="req">RM Availability</label>
+<select name="rmAvail" required>
+  <option>Yes</option>
+  <option>No</option>
+</select>
+</div>
+
+<div class="field">
+<label class="req">Number of MP Required</label>
+<input type="number" name="mpReq" required>
+</div>
+
+<div class="field">
+<label class="req">No of Shifts</label>
+<input type="number" name="shifts" required>
+</div>
+
+<div class="field">
+<label class="req">Time for Testing and Arrangement QC</label>
+<input name="qcTime" required>
+</div>
+
+<div class="field">
+<label class="req">No of Working Days Plan</label>
+<input type="number" name="workingDays" required>
+</div>
+
+<div class="field full-width">
+<label class="req">HOD</label>
+<select name="hod" required>
+  <option value="" disabled selected hidden>Select HOD</option>
+  <option>ARNAB MITRA</option>
+  <option>ATINDRIYA CHAKRABORTY</option>
+  <option>Sukanta Manna</option>
+  <option>HABIB SHAK</option>
+  <option>KOUSICK KHATUA</option>
+  <option>Krishna Kant Yogendra Yadav</option>
+  <option>Palash Panja</option>
+  <option>Prasenjit Patra</option>
+  <option>VINOD KUMAR</option>
+  <option>KHARAGPUR</option>
+  <option>NA</option>
+</select>
+</div>
+
+<button type="submit">Submit</button>
+</form>
+
+<iframe name="hidden_iframe" style="display:none"></iframe>
+
+<script>
+const APP_URL = "https://script.google.com/macros/s/AKfycbz49qJOLi2nUZv3scSBT-HocBnGHZ5xrSR5JLrAGgfE4MBIuX8I58N7zqiZMuyZemlyvQ/exec";
+
+let machines = [];
+const machineInput = document.getElementById("machineInput");
+const machineList = document.getElementById("machineList");
+const costCodeInput = document.getElementById("costCode");
+const comboWrapper = document.getElementById("comboWrapper");
+
+const planInput = document.getElementById("plan");
+const mfgInput = document.getElementById("mfg");
+const balanceInput = document.getElementById("kmBalance");
+
+fetch(APP_URL)
+  .then(r => r.json())
+  .then(d => {
+    machines = d;
+  })
+  .catch(e => console.log(e));
+
+function showList(filterText = "") {
+  machineList.innerHTML = "";
+  const filtered = machines.filter(m => 
+    m.machine.toLowerCase().includes(filterText.toLowerCase())
+  );
+
+  if (filtered.length === 0) {
+    machineList.style.display = "none";
+    return;
+  }
+
+  filtered.slice(0, 100).forEach(m => {
+    const div = document.createElement("div");
+    div.textContent = m.machine;
+    div.onclick = function() {
+      machineInput.value = m.machine;
+      costCodeInput.value = m.costCode;
+      machineList.style.display = "none";
+    };
+    machineList.appendChild(div);
+  });
+
+  machineList.style.display = "block";
+}
+
+machineInput.addEventListener("click", function() { showList(this.value); });
+machineInput.addEventListener("input", function() { showList(this.value); });
+document.addEventListener('click', function(e) {
+  if (!comboWrapper.contains(e.target)) { machineList.style.display = 'none'; }
+});
+
+function calculateBalance() {
+  const plan = parseFloat(planInput.value) || 0;
+  const mfg = parseFloat(mfgInput.value) || 0;
+  balanceInput.value = plan - mfg;
+}
+
+planInput.addEventListener("input", calculateBalance);
+mfgInput.addEventListener("input", calculateBalance);
+
+function beforeSubmit(){
+  setTimeout(function(){
+      alert("Submitted Successfully");
+      document.querySelector("form").reset();
+      balanceInput.value = "";
+  }, 500);
+  return true;
+}
+</script>
+
+</body>
+</html>
