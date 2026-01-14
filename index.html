@@ -115,19 +115,17 @@ button.submit-btn:hover {background:#0b5ed7}
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  // ➤ ১. Firebase Config (আপনার ঠিক করা ভার্সন)
-  const firebaseConfig = {
-    apiKey: "AIzaSyDywbG-rcyBHFB60huJesqasadBYDRlrJk", // Corrected '0'
-    authDomain: "laser-html-apps.firebaseapp.com",
-    projectId: "laser-html-apps",
-    storageBucket: "laser-html-apps.firebasestorage.app",
-    messagingSenderId: "919012116249",
-    appId: "1:919012116249:web:3699a77a34c8c8facd6788",
-    measurementId: "G-2G6RBP5V3N"
-  };
-
+const firebaseConfig = {
+  apiKey: "AIzaSyDywbG-rcyBHFB6OhuJesqasadBYDRlrJk",
+  authDomain: "laser-html-apps.firebaseapp.com",
+  projectId: "laser-html-apps",
+  storageBucket: "laser-html-apps.firebasestorage.app",
+  messagingSenderId: "919012116249",
+  appId: "1:919012116249:web:3699a77a34c8c8facd6788",
+  measurementId: "G-2G6RBP5V3N"
+};
   // ➤ ২. Google Apps Script URL (আপনার দেওয়া লিঙ্ক)
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwZ6wULY4mEgGPWm_1r3fRL4PaIAwmscvWHbxoYxmtSzCaXRWYQMydGDfZMQsRlLgt1nw/exec";
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw2CHsU5fvvlCs9j_E6jw9P9nKslrsDDWQS7kk7szj4pAmrVsMhT1Q0esA7T4oXnLXyDw/exec";
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
@@ -294,3 +292,4 @@ button.submit-btn:hover {background:#0b5ed7}
 
 </body>
 </html>
+
