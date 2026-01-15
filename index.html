@@ -38,6 +38,7 @@ button.submit-btn{grid-column:1/-1;padding:12px;background:#0d6efd;color:#fff;bo
 @media(max-width:600px){.form-grid{grid-template-columns:1fr}}
 </style>
 </head>
+
 <body>
 
 <video id="bgVideo" autoplay muted loop playsinline>
@@ -130,7 +131,6 @@ onAuthStateChanged(auth,user=>{
   }
 });
 
-/* JSONP LOAD */
 function loadMachineData(){
   const cb="jsonp_"+Date.now();
   window[cb]=function(data){
@@ -191,7 +191,12 @@ entryForm.addEventListener("submit",e=>{
         Swal.fire("Submitted","Data saved","success");
         entryForm.reset();
         bal.value="";
-      }else throw res.message;
+      }else if(res.result==="denied"){
+        Swal.fire("Access Denied","You do not have permission","error");
+        logout();
+      }else{
+        throw res.message;
+      }
     })
     .catch(err=>Swal.fire("Error",err,"error"))
     .finally(()=>submitBtn.disabled=false);
@@ -200,4 +205,3 @@ entryForm.addEventListener("submit",e=>{
 
 </body>
 </html>
-
