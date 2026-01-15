@@ -105,7 +105,7 @@ const firebaseConfig={
   appId:"1:919012116249:web:3699a77a34c8c8facd6788"
 };
 
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycbzlwINCmZ-90T9xjHr5mZAgtn22FRrzSDiT1dFR_iYrqf3WVt2cW4ozOtm-0KpTrJEw/exec";
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbwZ35hDWjy7EPGBU2zm-iflj0LVDEAufsKT_o--ALBi6xvPTVn07TF52-Gi8wOCU7JLcg/exec";
 
 const app=initializeApp(firebaseConfig);
 const auth=getAuth(app);
@@ -123,21 +123,25 @@ onAuthStateChanged(auth,user=>{
     userInfoDisplay.textContent="👤 "+user.displayName;
     userEmail.value=user.email;
     userName.value=user.displayName;
-    loadMachines();
+    loadMachineData();
   }else{
     loginSection.style.display="block";
     formSection.style.display="none";
   }
 });
 
-function loadMachines(){
-  fetch(SCRIPT_URL+"?action=getMachines")
-    .then(r=>r.json())
-    .then(d=>{
-      window.machines=d;
-      machineInput.placeholder="Select or type...";
-    })
-    .catch(()=>machineInput.placeholder="Error loading list!");
+/* JSONP LOAD */
+function loadMachineData(){
+  const cb="jsonp_"+Date.now();
+  window[cb]=function(data){
+    window.machines=data;
+    machineInput.placeholder="Select or type...";
+    delete window[cb];
+  };
+  const s=document.createElement("script");
+  s.src=SCRIPT_URL+"?action=getMachines&callback="+cb;
+  s.onerror=()=>machineInput.placeholder="Error loading list!";
+  document.body.appendChild(s);
 }
 
 const machineInput=document.getElementById("machineInput");
@@ -151,7 +155,11 @@ function showList(txt=""){
   f.forEach(m=>{
     const d=document.createElement("div");
     d.textContent=m.machine;
-    d.onclick=()=>{machineInput.value=m.machine;costCodeInput.value=m.costCode;machineList.style.display="none";}
+    d.onclick=()=>{
+      machineInput.value=m.machine;
+      costCodeInput.value=m.costCode;
+      machineList.style.display="none";
+    };
     machineList.appendChild(d);
   });
   machineList.style.display=f.length?"block":"none";
@@ -159,7 +167,9 @@ function showList(txt=""){
 
 machineInput.addEventListener("input",()=>showList(machineInput.value));
 machineInput.addEventListener("click",()=>showList(machineInput.value));
-document.addEventListener("click",e=>{if(!comboWrapper.contains(e.target))machineList.style.display="none"});
+document.addEventListener("click",e=>{
+  if(!comboWrapper.contains(e.target)) machineList.style.display="none";
+});
 
 const plan=document.getElementById("plan");
 const mfg=document.getElementById("mfg");
@@ -180,6 +190,7 @@ entryForm.addEventListener("submit",e=>{
       if(res.result==="success"){
         Swal.fire("Submitted","Data saved","success");
         entryForm.reset();
+        bal.value="";
       }else throw res.message;
     })
     .catch(err=>Swal.fire("Error",err,"error"))
