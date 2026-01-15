@@ -7,7 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
-/* ➤ EXISTING STYLES (আপনার ডিজাইন) */
+/* ➤ EXISTING STYLES */
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;width:100%;height:100%;font-family:Segoe UI,Arial,sans-serif}
 #bgVideo{position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:-2}
@@ -124,54 +124,46 @@ const firebaseConfig = {
   appId: "1:919012116249:web:3699a77a34c8c8facd6788",
   measurementId: "G-2G6RBP5V3N"
 };
-  // ➤ ২. Google Apps Script URL (আপনার দেওয়া লিঙ্ক)
+  
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxI8ca5dHEGtabwAo8BBstALh40pLT-X9ypmazz01tRCaWFGSQMRMtvrkORRIaB2jdcSA/exec";
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
 
-  // গ্লোবাল ভেরিয়েবল
   window.machines = []; 
 
-  // ➤ ৩. লগইন ফাংশন
   window.googleLogin = function() {
     signInWithPopup(auth, provider).catch((error) => {
       Swal.fire("Login Failed", error.message, "error");
     });
   };
 
-  // ➤ ৪. লগআউট ফাংশন
   window.logout = function() {
     signOut(auth).then(() => location.reload());
   };
 
-  // ➤ ৫. অথেনটিফিকেশন চেক এবং ডাটা লোড
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      // লগইন সফল
       document.getElementById("loginSection").style.display = "none";
       document.getElementById("formSection").style.display = "block";
       
-      // নাম ও ইমেইল সেট করা
       document.getElementById("userInfoDisplay").innerHTML = `👤 Operator: ${user.displayName}`;
       document.getElementById("userEmail").value = user.email;
       document.getElementById("userName").value = user.displayName;
       
-      loadMachineData(); // মেশিন লিস্ট লোড শুরু
+      loadMachineData();
     } else {
-      // লগইন নেই
       document.getElementById("loginSection").style.display = "block";
       document.getElementById("formSection").style.display = "none";
     }
   });
 
-  // ➤ ৬. মেশিন লিস্ট API থেকে আনা
   function loadMachineData() {
     const input = document.getElementById("machineInput");
     input.placeholder = "Loading list...";
     
-    fetch(SCRIPT_URL)
+    fetch(SCRIPT_URL + "?action=getMachines")
       .then(response => response.json())
       .then(data => {
         window.machines = data;
@@ -183,7 +175,6 @@ const firebaseConfig = {
       });
   }
 
-  // ➤ ৭. ফর্ম সাবমিট হ্যান্ডলার (নতুন Fetch API দিয়ে)
   document.getElementById("entryForm").addEventListener("submit", function(e) {
     e.preventDefault();
     
@@ -201,7 +192,7 @@ const firebaseConfig = {
     })
     .then(r => r.json())
     .then(res => {
-      if(res.result === "success") {
+      if(res.result === "Success") {
         Swal.fire({
           title: 'Submitted!',
           text: 'Data saved successfully.',
@@ -210,11 +201,9 @@ const firebaseConfig = {
           showConfirmButton: false
         });
         
-        // ফর্ম রিসেট (কিন্তু নাম ঠিক থাকবে)
         this.reset();
         document.getElementById("kmBalance").value = "";
         
-        // নাম আবার সেট করে দেওয়া
         const user = auth.currentUser;
         if(user) {
             document.getElementById("userEmail").value = user.email;
@@ -234,7 +223,6 @@ const firebaseConfig = {
     });
   });
 
-  // ➤ ৮. ক্যালকুলেশন এবং কম্বো বক্স লজিক (আপনার আগের কোড)
   const machineInput = document.getElementById("machineInput");
   const machineList = document.getElementById("machineList");
   const costCodeInput = document.getElementById("costCode");
@@ -272,7 +260,6 @@ const firebaseConfig = {
     if (!comboWrapper.contains(e.target)) { machineList.style.display = 'none'; }
   });
 
-  // ব্যালেন্স ক্যালকুলেশন
   const planInput = document.getElementById("plan");
   const mfgInput = document.getElementById("mfg");
   const balanceInput = document.getElementById("kmBalance");
@@ -283,7 +270,6 @@ const firebaseConfig = {
     balanceInput.value = plan - mfg;
   }
   
-  // ক্যালকুলেশন ফাংশনটি উইন্ডোতে সেট করা যাতে HTML থেকে কল করা যায়
   window.calc = calculateBalance; 
   planInput.addEventListener("input", calculateBalance);
   mfgInput.addEventListener("input", calculateBalance);
@@ -292,7 +278,3 @@ const firebaseConfig = {
 
 </body>
 </html>
-
-
-
-
