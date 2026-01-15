@@ -38,7 +38,6 @@ button.submit-btn{grid-column:1/-1;padding:12px;background:#0d6efd;color:#fff;bo
 @media(max-width:600px){.form-grid{grid-template-columns:1fr}}
 </style>
 </head>
-
 <body>
 
 <video id="bgVideo" autoplay muted loop playsinline>
@@ -106,7 +105,7 @@ const firebaseConfig={
   appId:"1:919012116249:web:3699a77a34c8c8facd6788"
 };
 
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycbw3TvjGy6yLSC_sNNTl5PynDOaaQute6SYXixWbmkRlnTXrEsjEY3eDfymxYJW45Q7oQA/exec";
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbxXjZQNxyg3-u1bgsAY72Q2kXjOVo_fK8lXdjt2OKIAsTn9putmRBb0MDKyjmdMMisUEw/exec";
 
 const app=initializeApp(firebaseConfig);
 const auth=getAuth(app);
@@ -131,6 +130,7 @@ onAuthStateChanged(auth,user=>{
   }
 });
 
+/* JSONP LOAD */
 function loadMachineData(){
   const cb="jsonp_"+Date.now();
   window[cb]=function(data){
@@ -191,12 +191,7 @@ entryForm.addEventListener("submit",e=>{
         Swal.fire("Submitted","Data saved","success");
         entryForm.reset();
         bal.value="";
-      }else if(res.result==="denied"){
-        Swal.fire("Access Denied","You do not have permission","error");
-        logout();
-      }else{
-        throw res.message;
-      }
+      }else throw res.message;
     })
     .catch(err=>Swal.fire("Error",err,"error"))
     .finally(()=>submitBtn.disabled=false);
