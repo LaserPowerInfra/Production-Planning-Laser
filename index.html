@@ -7,277 +7,138 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
-/* ➤ EXISTING STYLES */
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;width:100%;height:100%;font-family:Segoe UI,Arial,sans-serif}
 #bgVideo{position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:-2}
 .overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:-1}
-header {background: rgba(13,110,253,0.98);color: #fff;padding: 15px;text-align: center;font-size: 22px;font-weight: 600;position: sticky;top: 0;z-index: 1000;box-shadow: 0 4px 10px rgba(0,0,0,0.2);}
-.card {max-width: 850px;margin: 30px auto;background: rgba(255,255,255,0.98);padding: 25px;border-radius: 10px;box-shadow: 0 10px 25px rgba(0,0,0,0.25); position: relative;}
-
-/* ➤ NEW LOGIN STYLES */
-#loginSection { text-align: center; padding: 50px 20px; }
-.btn-google { background: white; color: #444; border: 1px solid #ddd; padding: 12px 25px; border-radius: 50px; font-weight: 600; font-size: 16px; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-.btn-google:hover { background: #f8f9fa; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
-.user-info { background: #e7f1ff; color: #0d6efd; padding: 10px; border-radius: 6px; text-align: center; margin-bottom: 20px; font-weight: bold; border: 1px solid #0d6efd; }
-
-/* ➤ FORM GRID & INPUTS */
-#formSection { display: none; /* Initially Hidden */ }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; row-gap: 15px; align-items: end; }
-.field { width: 100%; }
-.full-width { grid-column: 1 / -1; }
-label {display:block;font-size:13px;font-weight:600;margin-bottom:5px;color:#333}
-.req::after {content:" *";color:red}
-input,select {width:100%;padding:10px;font-size:14px;border:1px solid #ccc;border-radius:6px;outline:none}
-input:focus,select:focus {border-color:#0d6efd;box-shadow:0 0 0 3px rgba(13,110,253,.15)}
-input[readonly] {background:#f1f3f6;font-weight:bold;color:#555;cursor:not-allowed}
-
-/* ➤ COMBO BOX STYLES */
-.combo{position:relative;}
-.combo input { padding-right: 30px; cursor: pointer; }
-.combo-arrow {position: absolute; right: 10px; top: 50%; transform: translateY(-50%);color: #666; cursor: pointer; font-size: 12px; pointer-events: none;}
-.combo-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ccc;border-top:none;border-radius:0 0 6px 6px;max-height:220px;overflow-y:auto;display:none;z-index:100;box-shadow: 0 4px 6px rgba(0,0,0,0.1);}
-.combo-list div{padding:10px;cursor:pointer;border-bottom:1px solid #eee;font-size:14px}
-.combo-list div:hover{background:#e9ecef;color:#0d6efd}
-
-/* ➤ BUTTONS */
-button.submit-btn {grid-column: 1 / -1;width: 100%;padding: 12px;background: #0d6efd;color: #fff;border: none;font-size: 16px;font-weight: 600;border-radius: 6px;cursor: pointer;transition: background .2s;margin-top: 10px;}
-button.submit-btn:hover {background:#0b5ed7}
-.logout-btn { background: none; border: 1px solid #dc3545; color: #dc3545; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-top: 15px; }
-.logout-btn:hover { background: #dc3545; color: white; }
-
-@media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+header{background:rgba(13,110,253,.98);color:#fff;padding:15px;text-align:center;font-size:22px;font-weight:600;position:sticky;top:0;z-index:1000}
+.card{max-width:850px;margin:30px auto;background:#fff;padding:25px;border-radius:10px}
+#loginSection{text-align:center;padding:50px 20px}
+.btn-google{background:#fff;border:1px solid #ddd;padding:12px 25px;border-radius:50px;font-weight:600;cursor:pointer}
+.user-info{background:#e7f1ff;color:#0d6efd;padding:10px;border-radius:6px;margin-bottom:20px;font-weight:bold}
+#formSection{display:none}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.full-width{grid-column:1/-1}
+label{font-size:13px;font-weight:600}
+.req::after{content:" *";color:red}
+input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:6px}
+input[readonly]{background:#f1f3f6}
+.combo{position:relative}
+.combo-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ccc;display:none;z-index:100;max-height:200px;overflow:auto}
+.combo-list div{padding:10px;cursor:pointer}
+.combo-list div:hover{background:#eee}
+button.submit-btn{grid-column:1/-1;padding:12px;background:#0d6efd;color:#fff;border:none;border-radius:6px}
 </style>
 </head>
-<body>
 
-<video id="bgVideo" autoplay muted loop playsinline>
-  <source src="https://laserpowerinfra.com/wp-content/uploads/2025/09/lpi-video.mp4" type="video/mp4">
-</video>
-<div class="overlay"></div>
+<body>
 
 <header>Production Planning Laser</header>
 
 <div class="card">
-  
-  <div id="loginSection">
-    <h3 style="color:#333;">Welcome User!</h3>
-    <p style="color:#666; margin-bottom: 25px;">Please sign in to access the entry form.</p>
-    <button onclick="googleLogin()" class="btn-google">
-      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="25">
-      Sign in with Google
-    </button>
-  </div>
 
-  <div id="formSection">
-    <div class="user-info" id="userInfoDisplay"></div>
+<div id="loginSection">
+  <button onclick="googleLogin()" class="btn-google">Sign in with Google</button>
+</div>
 
-    <form class="form-grid" id="entryForm">
-      <input type="hidden" name="apiKey" value="LPI_SECRET_2026">
-      <input type="hidden" id="userEmail" name="userEmail">
-      <input type="hidden" id="userName" name="userName">
+<div id="formSection">
+<div class="user-info" id="userInfoDisplay"></div>
 
-      <div class="field full-width">
-        <label class="req">MACHINE NAME</label>
-        <div class="combo" id="comboWrapper">
-          <input id="machineInput" name="machine" autocomplete="off" placeholder="Loading list..." required>
-          <span class="combo-arrow">▼</span>
-          <div id="machineList" class="combo-list"></div>
-        </div>
-      </div>
-      
-      <div class="field"><label class="req">Cost Code</label><input id="costCode" name="costCode" readonly placeholder="Auto-filled"></div>
-      <div class="field"><label class="req">ITEM NAME</label><input name="itemName" required></div>
-      <div class="field"><label class="req">Plan</label><input type="number" id="plan" name="plan" required></div>
-      <div class="field"><label class="req">Mfg.</label><input type="number" id="mfg" name="mfg" required></div>
-      <div class="field"><label class="req">UM</label><select name="um" required><option value="" disabled selected hidden>Select UM</option><option>KG</option><option>KM</option><option>MT</option><option>NA</option></select></div>
-      <div class="field"><label class="req">KM / BALANCE</label><input id="kmBalance" name="kmBalance" readonly></div>
-      <div class="field"><label class="req">MC NO</label><input name="mcNo" required></div>
-      <div class="field"><label class="req">TARGET / DAY</label><input type="number" name="targetDay" required></div>
-      <div class="field"><label class="req">RM Availability</label><select name="rmAvail" required><option>Yes</option><option>No</option></select></div>
-      <div class="field"><label class="req">Number of MP Required</label><input type="number" name="mpReq" required></div>
-      <div class="field"><label class="req">No of Shifts</label><input type="number" name="shifts" required></div>
-      <div class="field"><label class="req">Time for Testing and Arrangement QC</label><input name="qcTime" required></div>
-      <div class="field"><label class="req">No of Working Days Plan</label><input type="number" name="workingDays" required></div>
-      <div class="field full-width"><label class="req">HOD</label><select name="hod" required><option value="" disabled selected hidden>Select HOD</option><option>ARNAB MITRA</option><option>ATINDRIYA CHAKRABORTY</option><option>Sukanta Manna</option><option>HABIB SHAK</option><option>KOUSICK KHATUA</option><option>Krishna Kant Yogendra Yadav</option><option>Palash Panja</option><option>Prasenjit Patra</option><option>VINOD KUMAR</option><option>KHARAGPUR</option><option>NA</option></select></div>
+<form class="form-grid" id="entryForm">
+<input type="hidden" id="userEmail" name="userEmail">
 
-      <button type="submit" id="submitBtn" class="submit-btn">Submit Data</button>
-    </form>
+<div class="full-width">
+<label class="req">MACHINE NAME</label>
+<div class="combo">
+<input id="machineInput" name="machine" autocomplete="off" required>
+<div id="machineList" class="combo-list"></div>
+</div>
+</div>
 
-    <div style="text-align:center;">
-        <button onclick="logout()" class="logout-btn">Log Out</button>
-    </div>
-  </div>
+<div><label class="req">Cost Code</label><input id="costCode" name="costCode" readonly></div>
+<div><label class="req">ITEM NAME</label><input name="itemName" required></div>
+<div><label class="req">Plan</label><input id="plan" name="plan" type="number"></div>
+<div><label class="req">Mfg</label><input id="mfg" name="mfg" type="number"></div>
+<div><label class="req">UM</label><select name="um"><option>KG</option><option>KM</option></select></div>
+<div><label class="req">KM / Balance</label><input id="kmBalance" name="kmBalance" readonly></div>
+<div><label class="req">MC No</label><input name="mcNo"></div>
+<div><label class="req">Target / Day</label><input name="targetDay"></div>
+<div><label class="req">RM Availability</label><select name="rmAvail"><option>Yes</option><option>No</option></select></div>
+<div><label class="req">MP Required</label><input name="mpReq"></div>
+<div><label class="req">Shifts</label><input name="shifts"></div>
+<div><label class="req">QC Time</label><input name="qcTime"></div>
+<div><label class="req">Working Days</label><input name="workingDays"></div>
+<div class="full-width"><label class="req">HOD</label><input name="hod"></div>
 
+<button class="submit-btn">Submit</button>
+</form>
+</div>
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDywbG-rcyBHFB6OhuJesqasadBYDRlrJk",
   authDomain: "laser-html-apps.firebaseapp.com",
-  projectId: "laser-html-apps",
-  storageBucket: "laser-html-apps.firebasestorage.app",
-  messagingSenderId: "919012116249",
-  appId: "1:919012116249:web:3699a77a34c8c8facd6788",
-  measurementId: "G-2G6RBP5V3N"
+  projectId: "laser-html-apps"
 };
-  
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-ggNBHuOkdF7HgdvVCmj4MoLLCfhgYv6cU1SwILXCxWy0bfCetOzwfemdktKVwmmX8A/exec";
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const provider = new GoogleAuthProvider();
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw9WRFYDM4WpX7hYSwFHcE3uQxjEJwpRpbQXD-xw9DuKQr7eg3GsozQ-DWpEqVcGmsTww/exec";
 
-  window.machines = []; 
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-  window.googleLogin = function() {
-    signInWithPopup(auth, provider).catch((error) => {
-      Swal.fire("Login Failed", error.message, "error");
-    });
-  };
+window.machines = [];
 
-  window.logout = function() {
-    signOut(auth).then(() => location.reload());
-  };
+window.googleLogin = () => signInWithPopup(auth, provider);
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      document.getElementById("loginSection").style.display = "none";
-      document.getElementById("formSection").style.display = "block";
-      
-      document.getElementById("userInfoDisplay").innerHTML = `👤 Operator: ${user.displayName}`;
-      document.getElementById("userEmail").value = user.email;
-      document.getElementById("userName").value = user.displayName;
-      
-      loadMachineData();
-    } else {
-      document.getElementById("loginSection").style.display = "block";
-      document.getElementById("formSection").style.display = "none";
-    }
-  });
-
-  function loadMachineData() {
-    const input = document.getElementById("machineInput");
-    input.placeholder = "Loading list...";
-    
-    fetch(SCRIPT_URL + "?action=getMachines")
-      .then(response => response.json())
-      .then(data => {
-        window.machines = data;
-        input.placeholder = "Select or type to search...";
-      })
-      .catch(error => {
-        input.placeholder = "Error loading list!";
-        console.error("Error:", error);
-      });
+onAuthStateChanged(auth, user => {
+  if(user){
+    document.getElementById("loginSection").style.display="none";
+    document.getElementById("formSection").style.display="block";
+    document.getElementById("userInfoDisplay").innerText = "Operator: " + user.displayName;
+    document.getElementById("userEmail").value = user.email;
+    loadMachineData();
   }
+});
 
-  document.getElementById("entryForm").addEventListener("submit", function(e) {
-    e.preventDefault();
-    
-    let btn = document.getElementById("submitBtn");
-    btn.disabled = true;
-    btn.innerText = "Submitting...";
+function loadMachineData(){
+  const s = document.createElement("script");
+  s.src = SCRIPT_URL + "?action=getMachines&callback=handleMachineData";
+  document.body.appendChild(s);
+}
 
-    let formData = new FormData(this);
-    let jsonData = {};
-    formData.forEach((v, k) => jsonData[k] = v);
+window.handleMachineData = data => {
+  window.machines = data;
+};
 
-    fetch(SCRIPT_URL, {
-      method: "POST",
-      body: JSON.stringify(jsonData)
-    })
-    .then(r => r.json())
-    .then(res => {
-      if(res.result === "Success") {
-        Swal.fire({
-          title: 'Submitted!',
-          text: 'Data saved successfully.',
-          icon: 'success',
-          timer: 2000,
-          showConfirmButton: false
-        });
-        
-        this.reset();
-        document.getElementById("kmBalance").value = "";
-        
-        const user = auth.currentUser;
-        if(user) {
-            document.getElementById("userEmail").value = user.email;
-            document.getElementById("userName").value = user.displayName;
-        }
+const machineInput = document.getElementById("machineInput");
+const machineList = document.getElementById("machineList");
+const costCode = document.getElementById("costCode");
 
-      } else {
-        throw new Error(res.message || "Unknown Error");
-      }
-    })
-    .catch(err => {
-      Swal.fire("Error", err.toString(), "error");
-    })
-    .finally(() => {
-      btn.disabled = false;
-      btn.innerText = "Submit Data";
-    });
+machineInput.addEventListener("input", () => {
+  machineList.innerHTML="";
+  const f = window.machines.filter(m => m.machine.toLowerCase().includes(machineInput.value.toLowerCase()));
+  f.forEach(m=>{
+    const d=document.createElement("div");
+    d.innerText=m.machine;
+    d.onclick=()=>{machineInput.value=m.machine;costCode.value=m.costCode;machineList.style.display="none";}
+    machineList.appendChild(d);
   });
+  machineList.style.display="block";
+});
 
-  const machineInput = document.getElementById("machineInput");
-  const machineList = document.getElementById("machineList");
-  const costCodeInput = document.getElementById("costCode");
-  const comboWrapper = document.getElementById("comboWrapper");
-
-  function showList(filterText = "") {
-    machineList.innerHTML = "";
-    if(window.machines.length === 0) return;
-    
-    const filtered = window.machines.filter(m => 
-      m.machine && m.machine.toLowerCase().includes(filterText.toLowerCase())
-    );
-    
-    if (filtered.length === 0) {
-      machineList.style.display = "none";
-      return;
-    }
-    
-    filtered.slice(0, 100).forEach(m => {
-      const div = document.createElement("div");
-      div.textContent = m.machine;
-      div.onclick = function() {
-        machineInput.value = m.machine;
-        costCodeInput.value = m.costCode;
-        machineList.style.display = "none";
-      };
-      machineList.appendChild(div);
-    });
-    machineList.style.display = "block";
-  }
-
-  machineInput.addEventListener("click", function() { showList(this.value); });
-  machineInput.addEventListener("input", function() { showList(this.value); });
-  document.addEventListener('click', function(e) {
-    if (!comboWrapper.contains(e.target)) { machineList.style.display = 'none'; }
-  });
-
-  const planInput = document.getElementById("plan");
-  const mfgInput = document.getElementById("mfg");
-  const balanceInput = document.getElementById("kmBalance");
-  
-  function calculateBalance() {
-    const plan = parseFloat(planInput.value) || 0;
-    const mfg = parseFloat(mfgInput.value) || 0;
-    balanceInput.value = plan - mfg;
-  }
-  
-  window.calc = calculateBalance; 
-  planInput.addEventListener("input", calculateBalance);
-  mfgInput.addEventListener("input", calculateBalance);
+document.getElementById("entryForm").onsubmit = e => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target).entries());
+  fetch(SCRIPT_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)})
+    .then(r=>r.json())
+    .then(()=>Swal.fire("Success","Data Saved","success"));
+};
 
 </script>
-
 </body>
 </html>
-
-
-
