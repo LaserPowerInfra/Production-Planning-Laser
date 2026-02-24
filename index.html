@@ -32,6 +32,17 @@ input[readonly]{background:#f1f3f6}
 .combo-list div{padding:10px;cursor:pointer}
 .combo-list div:hover{background:#e9ecef}
 
+.refresh-btn{
+  background:#198754;
+  color:#fff;
+  border:none;
+  padding:4px 10px;
+  border-radius:4px;
+  font-size:12px;
+  cursor:pointer;
+  margin-left:8px;
+}
+
 button.submit-btn{grid-column:1/-1;padding:12px;background:#0d6efd;color:#fff;border:none;border-radius:6px;font-size:16px;font-weight:600;cursor:pointer}
 .logout-btn{margin-top:15px;border:1px solid #dc3545;color:#dc3545;padding:5px 15px;border-radius:4px;background:none;cursor:pointer}
 
@@ -62,7 +73,10 @@ button.submit-btn{grid-column:1/-1;padding:12px;background:#0d6efd;color:#fff;bo
     <input type="hidden" id="userName" name="userName">
 
     <div class="full-width">
-      <label class="req">MACHINE NAME</label>
+      <label class="req">
+        MACHINE NAME
+        <button type="button" class="refresh-btn" onclick="refreshMachines()">🔄 Refresh</button>
+      </label>
       <div class="combo" id="comboWrapper">
         <input id="machineInput" name="machine" placeholder="Loading machines..." autocomplete="off" required>
         <div id="machineList" class="combo-list"></div>
@@ -148,6 +162,7 @@ let machines=[];
 
 window.googleLogin=()=>signInWithPopup(auth,provider);
 window.logout=()=>signOut(auth).then(()=>location.reload());
+window.refreshMachines=refreshMachines;
 
 onAuthStateChanged(auth,user=>{
   if(user){
@@ -156,20 +171,37 @@ onAuthStateChanged(auth,user=>{
     userInfoDisplay.textContent="👤 "+user.displayName;
     userEmail.value=user.email;
     userName.value=user.displayName;
-    loadMachines();
+    loadMachines(false);
   }
 });
 
-function loadMachines(){
+function loadMachines(showAlert=true){
+  machineInput.placeholder="Loading machines...";
   fetch(SCRIPT_URL+"?action=getMachines")
     .then(res=>res.json())
     .then(data=>{
       machines=Array.isArray(data)?data:[];
       machineInput.placeholder="Select or type machine...";
+      if(showAlert){
+        Swal.fire({
+          icon:"success",
+          title:"Updated",
+          text:"Machine list refreshed",
+          timer:1500,
+          showConfirmButton:false
+        });
+      }
     })
     .catch(()=>{
       machineInput.placeholder="Error loading list!";
+      if(showAlert){
+        Swal.fire("Error","Unable to refresh machine list","error");
+      }
     });
+}
+
+function refreshMachines(){
+  loadMachines(true);
 }
 
 function showList(val=""){
