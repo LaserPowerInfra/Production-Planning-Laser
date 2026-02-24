@@ -139,6 +139,10 @@ const machineInput=document.getElementById("machineInput");
 const machineList=document.getElementById("machineList");
 const costCodeInput=document.getElementById("costCode");
 const comboWrapper=document.getElementById("comboWrapper");
+const entryForm=document.getElementById("entryForm");
+const submitBtn=document.getElementById("submitBtn");
+const userEmail=document.getElementById("userEmail");
+const userName=document.getElementById("userName");
 
 let machines=[];
 
@@ -152,21 +156,20 @@ onAuthStateChanged(auth,user=>{
     userInfoDisplay.textContent="👤 "+user.displayName;
     userEmail.value=user.email;
     userName.value=user.displayName;
-    loadMachinesJSONP();
+    loadMachines();
   }
 });
 
-function loadMachinesJSONP(){
-  const cb="cb_"+Date.now();
-  window[cb]=(data)=>{
-    machines=Array.isArray(data)?data:[];
-    machineInput.placeholder="Select or type machine...";
-    delete window[cb];
-  };
-  const s=document.createElement("script");
-  s.src=SCRIPT_URL+"?action=getMachines&callback="+cb;
-  s.onerror=()=>machineInput.placeholder="Error loading list!";
-  document.body.appendChild(s);
+function loadMachines(){
+  fetch(SCRIPT_URL+"?action=getMachines")
+    .then(res=>res.json())
+    .then(data=>{
+      machines=Array.isArray(data)?data:[];
+      machineInput.placeholder="Select or type machine...";
+    })
+    .catch(()=>{
+      machineInput.placeholder="Error loading list!";
+    });
 }
 
 function showList(val=""){
@@ -220,5 +223,3 @@ entryForm.addEventListener("submit",e=>{
 
 </body>
 </html>
-
-
