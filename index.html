@@ -11,10 +11,10 @@
 html,body{margin:0;padding:0;width:100%;height:100%;font-family:Segoe UI,Arial,sans-serif}
 #bgVideo{position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:-2}
 .overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:-1}
-header{background:#0d6efd;color:#fff;padding:15px;text-align:center;font-size:22px;font-weight:600}
-.card{max-width:850px;margin:40px auto;background:#fff;padding:25px;border-radius:10px;box-shadow:0 10px 25px rgba(0,0,0,.25)}
+header{background:#0d6efd;color:#fff;padding:15px;text-align:center;font-size:22px;font-weight:600;position:sticky;top:0;z-index:1000}
+.card{max-width:850px;margin:30px auto;background:#fff;padding:25px;border-radius:10px;box-shadow:0 10px 25px rgba(0,0,0,.25)}
 
-#loginSection{text-align:center;padding:40px}
+#loginSection{text-align:center;padding:50px 20px}
 .btn-google{background:#fff;color:#444;border:1px solid #ddd;padding:12px 25px;border-radius:50px;font-weight:600;cursor:pointer}
 
 #formSection{display:none}
@@ -32,20 +32,10 @@ input[readonly]{background:#f1f3f6}
 .combo-list div{padding:10px;cursor:pointer}
 .combo-list div:hover{background:#e9ecef}
 
-.refresh-link{
-  background:none;
-  border:none;
-  color:#0d6efd;
-  font-size:13px;
-  font-weight:600;
-  cursor:pointer;
-  margin-left:10px;
-  padding:0;
-}
-.refresh-link:hover{text-decoration:underline}
-
 button.submit-btn{grid-column:1/-1;padding:12px;background:#0d6efd;color:#fff;border:none;border-radius:6px;font-size:16px;font-weight:600;cursor:pointer}
 .logout-btn{margin-top:15px;border:1px solid #dc3545;color:#dc3545;padding:5px 15px;border-radius:4px;background:none;cursor:pointer}
+
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -61,7 +51,7 @@ button.submit-btn{grid-column:1/-1;padding:12px;background:#0d6efd;color:#fff;bo
 
 <div id="loginSection">
   <h3>Welcome User</h3>
-  <button id="loginBtn" class="btn-google">Sign in with Google</button>
+  <button onclick="googleLogin()" class="btn-google">Sign in with Google</button>
 </div>
 
 <div id="formSection">
@@ -72,10 +62,7 @@ button.submit-btn{grid-column:1/-1;padding:12px;background:#0d6efd;color:#fff;bo
     <input type="hidden" id="userName" name="userName">
 
     <div class="full-width">
-      <label class="req">
-        MACHINE NAME
-        <button type="button" class="refresh-link" id="refreshBtn">🔄 Refresh Data</button>
-      </label>
+      <label class="req">MACHINE NAME</label>
       <div class="combo" id="comboWrapper">
         <input id="machineInput" name="machine" placeholder="Loading machines..." autocomplete="off" required>
         <div id="machineList" class="combo-list"></div>
@@ -98,9 +85,8 @@ button.submit-btn{grid-column:1/-1;padding:12px;background:#0d6efd;color:#fff;bo
     <div><label class="req">RM Availability</label><select name="rmAvail"><option>Yes</option><option>No</option></select></div>
     <div><label class="req">MP Required</label><input type="number" name="mpReq" required></div>
     <div><label class="req">No of Shifts</label><input type="number" name="shifts" required></div>
-    <div><label class="req">TIME FOR TESTING AND ARRANGEMENT QC</label><input name="qcTime" required></div>
+    <div><label class="req">TIME  FOR TESTING AND ARRANGEMENT QC </label><input name="qcTime" required></div>
     <div><label class="req">No of working days plan</label><input type="number" name="workingDays" required></div>
-
     <div class="full-width">
       <label class="req">HOD</label>
       <select name="hod" required>
@@ -123,7 +109,7 @@ button.submit-btn{grid-column:1/-1;padding:12px;background:#0d6efd;color:#fff;bo
   </form>
 
   <div style="text-align:center">
-    <button class="logout-btn" id="logoutBtn">Log Out</button>
+    <button class="logout-btn" onclick="logout()">Log Out</button>
   </div>
 </div>
 
@@ -146,54 +132,93 @@ const app=initializeApp(firebaseConfig);
 const auth=getAuth(app);
 const provider=new GoogleAuthProvider();
 
-const loginBtn=document.getElementById("loginBtn");
-const logoutBtn=document.getElementById("logoutBtn");
 const loginSection=document.getElementById("loginSection");
 const formSection=document.getElementById("formSection");
 const userInfoDisplay=document.getElementById("userInfoDisplay");
 const machineInput=document.getElementById("machineInput");
 const machineList=document.getElementById("machineList");
 const costCodeInput=document.getElementById("costCode");
-const refreshBtn=document.getElementById("refreshBtn");
+const comboWrapper=document.getElementById("comboWrapper");
+const entryForm=document.getElementById("entryForm");
+const submitBtn=document.getElementById("submitBtn");
+const userEmail=document.getElementById("userEmail");
+const userName=document.getElementById("userName");
 
 let machines=[];
 
-/* ✅ Proper event binding */
-loginBtn.addEventListener("click",()=>{
-  signInWithPopup(auth,provider);
-});
-
-logoutBtn.addEventListener("click",()=>{
-  signOut(auth).then(()=>location.reload());
-});
-
-refreshBtn.addEventListener("click",()=>{
-  loadMachines(true);
-});
+window.googleLogin=()=>signInWithPopup(auth,provider);
+window.logout=()=>signOut(auth).then(()=>location.reload());
 
 onAuthStateChanged(auth,user=>{
   if(user){
     loginSection.style.display="none";
     formSection.style.display="block";
     userInfoDisplay.textContent="👤 "+user.displayName;
-    document.getElementById("userEmail").value=user.email;
-    document.getElementById("userName").value=user.displayName;
-    loadMachines(false);
+    userEmail.value=user.email;
+    userName.value=user.displayName;
+    loadMachines();
   }
 });
 
-function loadMachines(showAlert){
-  machineInput.placeholder="Loading machines...";
+function loadMachines(){
   fetch(SCRIPT_URL+"?action=getMachines")
-  .then(res=>res.json())
-  .then(data=>{
-    machines=data||[];
-    machineInput.placeholder="Select or type machine...";
-    if(showAlert){
-      Swal.fire("Updated","Machine list refreshed","success");
-    }
-  });
+    .then(res=>res.json())
+    .then(data=>{
+      machines=Array.isArray(data)?data:[];
+      machineInput.placeholder="Select or type machine...";
+    })
+    .catch(()=>{
+      machineInput.placeholder="Error loading list!";
+    });
 }
+
+function showList(val=""){
+  machineList.innerHTML="";
+  const f=machines.filter(m=>m.machine.toLowerCase().includes(val.toLowerCase()));
+  f.forEach(m=>{
+    const d=document.createElement("div");
+    d.textContent=m.machine;
+    d.onclick=()=>{
+      machineInput.value=m.machine;
+      costCodeInput.value=m.costCode||"";
+      machineList.style.display="none";
+    };
+    machineList.appendChild(d);
+  });
+  machineList.style.display=f.length?"block":"none";
+}
+
+machineInput.addEventListener("input",()=>showList(machineInput.value));
+machineInput.addEventListener("focus",()=>showList(machineInput.value));
+document.addEventListener("click",e=>{
+  if(!comboWrapper.contains(e.target)) machineList.style.display="none";
+});
+
+const plan=document.getElementById("plan");
+const mfg=document.getElementById("mfg");
+const bal=document.getElementById("kmBalance");
+function calc(){bal.value=(+plan.value||0)-(+mfg.value||0)}
+plan.addEventListener("input",calc);
+mfg.addEventListener("input",calc);
+
+entryForm.addEventListener("submit",e=>{
+  e.preventDefault();
+  submitBtn.disabled=true;
+  const fd=new FormData(entryForm);
+  const obj={};fd.forEach((v,k)=>obj[k]=v);
+
+  fetch(SCRIPT_URL,{method:"POST",body:JSON.stringify(obj)})
+    .then(r=>r.json())
+    .then(res=>{
+      if(res.result==="success"){
+        Swal.fire("Submitted","Data saved","success");
+        entryForm.reset();
+        bal.value="";
+      }else throw res.message;
+    })
+    .catch(err=>Swal.fire("Error",err,"error"))
+    .finally(()=>submitBtn.disabled=false);
+});
 </script>
 
 </body>
