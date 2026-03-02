@@ -72,12 +72,9 @@ button.submit-btn{grid-column:1/-1;padding:12px;background:#0d6efd;color:#fff;bo
     <div><label class="req">Cost Code</label><input id="costCode" name="costCode" readonly></div>
     <div><label class="req">ITEM NAME</label><input name="itemName" required></div>
    
-    <div><label class="req">Plan (E)</label><input type="number" id="plan" name="plan" step="any" required></div>
-    <div><label class="req">Mfg (F)</label><input type="number" id="mfg" name="mfg" step="any" required></div>
+    <div><label class="req">Plan</label><input type="number" id="plan" name="plan" step="any" required></div>
+    <div><label class="req">Mfg</label><input type="number" id="mfg" name="mfg" step="any" required></div>
    
-    <div><label class="req">T Value (Extra)</label><input type="number" id="tValue" name="tValue" step="any" value="0" required></div>
-    <div><label>Final Balance (S = E-(F+T))</label><input id="finalS" readonly></div>
-
     <div><label class="req">UM</label>
       <select name="um" required>
         <option value="">Select</option>
@@ -128,7 +125,7 @@ button.submit-btn{grid-column:1/-1;padding:12px;background:#0d6efd;color:#fff;bo
       </select>
     </div>
 
-    <button class="submit-btn" id="submitBtn">Submit Data</button>
+    <button type="submit" class="submit-btn" id="submitBtn">Submit Data</button>
   </form>
 
   <div style="text-align:center">
@@ -149,8 +146,8 @@ const firebaseConfig={
   appId:"1:919012116249:web:3699a77a34c8c8facd6788"
 };
 
-// UPDATED DEPLOYMENT LINK
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycbw5yxQBGCkizTUhpEyif9JfDROVdY3yIRtZr2gX77JgyF3U8tvvckj3rR82jCDxoSTD8Q/exec";
+// FINAL DEPLOYMENT LINK UPDATED
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbyY4fmdc4RxquBSF6ky8loWDJFdg3ZEqsgMWtjC-tpjtzNmRnVTmCJteZYEFu3nlYOd-Q/exec";
 
 const app=initializeApp(firebaseConfig);
 const auth=getAuth(app);
@@ -189,7 +186,7 @@ function loadMachines(){
     .then(res=>res.json())
     .then(data=>{
       machines=Array.isArray(data)?data:[];
-      machineInput.placeholder="Select or type machine...";
+      machineInput.placeholder="Select machine...";
     })
     .catch(()=>{
       machineInput.placeholder="Error loading list!";
@@ -220,33 +217,20 @@ document.addEventListener("click",e=>{
 
 const plan=document.getElementById("plan");
 const mfg=document.getElementById("mfg");
-const tValue=document.getElementById("tValue");
-const finalS=document.getElementById("finalS");
 const bal=document.getElementById("kmBalance");
 
-function calc(){
-    const e = (+plan.value || 0);
-    const f = (+mfg.value || 0);
-    const t = (+tValue.value || 0);
-   
-    // KM / Balance (H) = E - F
-    bal.value = Math.round((e - f) * 1000) / 1000;
-   
-    // Final Balance (S) = E - (F + T)
-    finalS.value = Math.round((e - (f + t)) * 1000) / 1000;
+function calc() {
+    bal.value = Math.round(((+plan.value || 0) - (+mfg.value || 0)) * 1000) / 1000;
 }
-
-plan.addEventListener("input",calc);
-mfg.addEventListener("input",calc);
-tValue.addEventListener("input",calc);
+plan.addEventListener("input", calc);
+mfg.addEventListener("input", calc);
 
 entryForm.addEventListener("submit",e=>{
   e.preventDefault();
   submitBtn.disabled=true;
  
   const fd=new FormData(entryForm);
-  const obj={};
-  fd.forEach((v,k)=>obj[k]=v);
+  const obj=Object.fromEntries(fd);
 
   fetch(SCRIPT_URL,{
       method:"POST",
@@ -255,10 +239,9 @@ entryForm.addEventListener("submit",e=>{
   .then(r=>r.json())
   .then(res=>{
       if(res.result==="success"){
-        Swal.fire("Submitted","Data saved successfully","success");
+        Swal.fire("Submitted","Data saved at top","success");
         entryForm.reset();
         bal.value="";
-        finalS.value="";
       } else {
         throw new Error(res.message);
       }
