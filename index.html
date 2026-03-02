@@ -71,10 +71,10 @@ button.submit-btn{grid-column:1/-1;padding:12px;background:#0d6efd;color:#fff;bo
 
     <div><label class="req">Cost Code</label><input id="costCode" name="costCode" readonly></div>
     <div><label class="req">ITEM NAME</label><input name="itemName" required></div>
-    
+   
     <div><label class="req">Plan</label><input type="number" id="plan" name="plan" step="any" required></div>
     <div><label class="req">Mfg</label><input type="number" id="mfg" name="mfg" step="any" required></div>
-    
+   
     <div><label class="req">UM</label>
       <select name="um" required>
         <option value="">Select</option>
@@ -83,14 +83,30 @@ button.submit-btn{grid-column:1/-1;padding:12px;background:#0d6efd;color:#fff;bo
     </div>
     <div><label class="req">KM / BALANCE</label><input id="kmBalance" name="kmBalance" readonly></div>
     <div><label class="req">MC NO</label><input name="mcNo" required></div>
-    
+   
     <div><label class="req">TARGET / DAY</label><input type="number" name="targetDay" step="any" required></div>
-    
+   
     <div><label class="req">RM Availability</label><select name="rmAvail"><option>Yes</option><option>No</option></select></div>
     <div><label class="req">MP Required</label><input type="number" name="mpReq" required></div>
     <div><label class="req">No of Shifts</label><input type="number" name="shifts" required></div>
     <div><label class="req">TIME FOR TESTING AND ARRANGEMENT QC </label><input name="qcTime" required></div>
     <div><label class="req">No of working days plan</label><input type="number" name="workingDays" required></div>
+
+    <div>
+        <label class="req">RUNNING STATUS</label>
+        <select name="runningStatus" required>
+            <option value="">Select Status</option>
+            <option>Running</option>
+            <option>Hold</option>
+            <option>Canceled</option>
+            <option>Completed</option>
+        </select>
+    </div>
+    <div>
+        <label class="req">START DATE</label>
+        <input type="date" name="startDate" required>
+    </div>
+
     <div class="full-width">
       <label class="req">HOD</label>
       <select name="hod" required>
@@ -130,7 +146,8 @@ const firebaseConfig={
   appId:"1:919012116249:web:3699a77a34c8c8facd6788"
 };
 
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycbxZsHnqbEVtLDkAVvffGNt9HM1nXw6DQRWMXmyFzQ1tw9V_lurwDedVRuu0XViEgFADAw/exec";
+// NAYA DEPLOYMENT LINK
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbzQgHX_1X7UxQL8Qqhcktt40aHegO2xfT4SjPXxToQ_rLBi7Y_n-nAUj1h-yNvAnUnuaQ/exec";
 
 const app=initializeApp(firebaseConfig);
 const auth=getAuth(app);
@@ -157,7 +174,7 @@ onAuthStateChanged(auth,user=>{
   if(user){
     loginSection.style.display="none";
     formSection.style.display="block";
-    userInfoDisplay.textContent="👤 "+user.displayName;
+    userInfoDisplay.textContent=" "+user.displayName;
     userEmail.value=user.email;
     userName.value=user.displayName;
     loadMachines();
@@ -202,11 +219,9 @@ const plan=document.getElementById("plan");
 const mfg=document.getElementById("mfg");
 const bal=document.getElementById("kmBalance");
 
-// Updated calc function for clean decimals
 function calc(){
     const diff = (+plan.value || 0) - (+mfg.value || 0);
-    // Showing 3 decimal places for accuracy in KG/KM
-    bal.value = Math.round(diff * 1000) / 1000; 
+    bal.value = Math.round(diff * 1000) / 1000;
 }
 
 plan.addEventListener("input",calc);
@@ -215,25 +230,31 @@ mfg.addEventListener("input",calc);
 entryForm.addEventListener("submit",e=>{
   e.preventDefault();
   submitBtn.disabled=true;
+ 
   const fd=new FormData(entryForm);
-  const obj={};fd.forEach((v,k)=>obj[k]=v);
+  const obj={};
+  fd.forEach((v,k)=>obj[k]=v);
 
-  fetch(SCRIPT_URL,{method:"POST",body:JSON.stringify(obj)})
-    .then(r=>r.json())
-    .then(res=>{
+  fetch(SCRIPT_URL,{
+      method:"POST",
+      body:JSON.stringify(obj)
+  })
+  .then(r=>r.json())
+  .then(res=>{
       if(res.result==="success"){
-        Swal.fire("Submitted","Data saved","success");
+        Swal.fire("Submitted","Data saved successfully","success");
         entryForm.reset();
         bal.value="";
-      }else throw res.message;
-    })
-    .catch(err=>Swal.fire("Error",err,"error"))
-    .finally(()=>submitBtn.disabled=false);
+      } else {
+        throw new Error(res.message);
+      }
+  })
+  .catch(err=>{
+      Swal.fire("Error",err.message || "Submission failed","error");
+  })
+  .finally(()=>submitBtn.disabled=false);
 });
 </script>
 
 </body>
 </html>
-
-
-
