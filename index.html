@@ -72,24 +72,27 @@ button.submit-btn{grid-column:1/-1;padding:12px;background:#0d6efd;color:#fff;bo
     <div><label class="req">Cost Code</label><input id="costCode" name="costCode" readonly></div>
     <div><label class="req">ITEM NAME</label><input name="itemName" required></div>
    
-    <div><label class="req">Plan</label><input type="number" id="plan" name="plan" step="any" required></div>
-    <div><label class="req">Mfg</label><input type="number" id="mfg" name="mfg" step="any" required></div>
+    <div><label class="req">Plan (E)</label><input type="number" id="plan" name="plan" step="any" required></div>
+    <div><label class="req">Mfg (F)</label><input type="number" id="mfg" name="mfg" step="any" required></div>
    
+    <div><label class="req">T Value (Extra)</label><input type="number" id="tValue" name="tValue" step="any" value="0" required></div>
+    <div><label>Final Balance (S = E-(F+T))</label><input id="finalS" readonly></div>
+
     <div><label class="req">UM</label>
       <select name="um" required>
         <option value="">Select</option>
         <option>KG</option><option>KM</option><option>NA</option>
       </select>
     </div>
-    <div><label class="req">KM / BALANCE</label><input id="kmBalance" name="kmBalance" readonly></div>
-    <div><label class="req">MC NO</label><input name="mcNo" required></div>
+    <div><label class="req">KM / BALANCE (H)</label><input id="kmBalance" name="kmBalance" readonly></div>
    
+    <div><label class="req">MC NO</label><input name="mcNo" required></div>
     <div><label class="req">TARGET / DAY</label><input type="number" name="targetDay" step="any" required></div>
    
     <div><label class="req">RM Availability</label><select name="rmAvail"><option>Yes</option><option>No</option></select></div>
     <div><label class="req">MP Required</label><input type="number" name="mpReq" required></div>
     <div><label class="req">No of Shifts</label><input type="number" name="shifts" required></div>
-    <div><label class="req">TIME FOR TESTING AND ARRANGEMENT QC </label><input name="qcTime" required></div>
+    <div><label class="req">TIME FOR QC ARRANGEMENT</label><input name="qcTime" required></div>
     <div><label class="req">No of working days plan</label><input type="number" name="workingDays" required></div>
 
     <div>
@@ -146,8 +149,8 @@ const firebaseConfig={
   appId:"1:919012116249:web:3699a77a34c8c8facd6788"
 };
 
-// NAYA DEPLOYMENT LINK
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycbzQgHX_1X7UxQL8Qqhcktt40aHegO2xfT4SjPXxToQ_rLBi7Y_n-nAUj1h-yNvAnUnuaQ/exec";
+// UPDATED DEPLOYMENT LINK
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbw5yxQBGCkizTUhpEyif9JfDROVdY3yIRtZr2gX77JgyF3U8tvvckj3rR82jCDxoSTD8Q/exec";
 
 const app=initializeApp(firebaseConfig);
 const auth=getAuth(app);
@@ -217,15 +220,25 @@ document.addEventListener("click",e=>{
 
 const plan=document.getElementById("plan");
 const mfg=document.getElementById("mfg");
+const tValue=document.getElementById("tValue");
+const finalS=document.getElementById("finalS");
 const bal=document.getElementById("kmBalance");
 
 function calc(){
-    const diff = (+plan.value || 0) - (+mfg.value || 0);
-    bal.value = Math.round(diff * 1000) / 1000;
+    const e = (+plan.value || 0);
+    const f = (+mfg.value || 0);
+    const t = (+tValue.value || 0);
+   
+    // KM / Balance (H) = E - F
+    bal.value = Math.round((e - f) * 1000) / 1000;
+   
+    // Final Balance (S) = E - (F + T)
+    finalS.value = Math.round((e - (f + t)) * 1000) / 1000;
 }
 
 plan.addEventListener("input",calc);
 mfg.addEventListener("input",calc);
+tValue.addEventListener("input",calc);
 
 entryForm.addEventListener("submit",e=>{
   e.preventDefault();
@@ -245,6 +258,7 @@ entryForm.addEventListener("submit",e=>{
         Swal.fire("Submitted","Data saved successfully","success");
         entryForm.reset();
         bal.value="";
+        finalS.value="";
       } else {
         throw new Error(res.message);
       }
